@@ -6,7 +6,7 @@ MVP는 "불확실성 돌아보기" 하나. 전체 설계는 [docs/design.md](doc
 ## 스택과 실행
 - 순수 HTML/CSS/JS (ES 모듈). 빌드 도구, 프레임워크, npm 의존성을 추가하지 않는다.
 - 로컬 실행: `python3 -m http.server 8000` 후 http://localhost:8000 (ES 모듈이라 file:// 로는 안 열린다)
-- 테스트: `node --test tests/`
+- 테스트: `node --test` (tests/*.test.js 자동 탐색)
 - 배포: GitHub Pages, main 브랜치 루트
 
 ## 규칙
