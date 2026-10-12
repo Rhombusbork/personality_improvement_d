@@ -82,3 +82,43 @@ test('요일과 파일명', () => {
   assert.equal(weekday('2026-10-12'), '월');
   assert.equal(fileName(base), 'uncertainty-2026-10-13.txt');
 });
+
+import { formatBody, bodyFileName, formatDuration } from '../js/lib/format.js';
+
+test('신체 훈련 형식', () => {
+  const state = {
+    date: '2026-10-13',
+    scores: { anxiety: 4, blame: null },
+    breath: { seconds: 300 },
+    moment: '회의에서 말이 빨라졌을 때',
+    spots: [
+      { place: '가슴', feel: '조임', intensity: 3 },
+      { place: '목·어깨', feel: '무거움', intensity: 5 },
+    ],
+    stay: { seconds: 0 },
+  };
+  assert.equal(formatBody(state), `[신체 훈련] 2026-10-13 (화)
+
+■ 시작 점수
+불안: 4/10
+나를 향한 비난: (비어 있음)
+
+■ 공명 호흡
+5분
+
+■ 감정 위치 찾기
+떠올린 순간: 회의에서 말이 빨라졌을 때
+- 가슴 | 조임 | 3
+- 목·어깨 | 무거움 | 5
+
+■ 그냥 같이 있기
+안 함
+`);
+  assert.equal(bodyFileName(state), 'body-2026-10-13.txt');
+});
+
+test('시간 표기', () => {
+  assert.equal(formatDuration(0), '안 함');
+  assert.equal(formatDuration(45), '45초');
+  assert.equal(formatDuration(150), '2분 30초');
+});

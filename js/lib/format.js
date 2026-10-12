@@ -91,3 +91,46 @@ export function formatUncertainty(state) {
 export function fileName(state) {
   return `uncertainty-${state.date}.txt`;
 }
+
+// ---------- 신체 훈련 ----------
+
+export const BODY_PLACES = ['머리', '얼굴·턱', '목·어깨', '가슴', '배', '팔·손', '다리', '전신', '잘 모르겠음'];
+export const BODY_FEELS = ['조임', '두근거림', '열감', '떨림', '무거움', '답답함', '저림', '텅 빔'];
+
+export function formatDuration(seconds) {
+  const s = Math.max(0, Math.floor(seconds ?? 0));
+  if (!s) return '안 함';
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return m ? (r ? `${m}분 ${r}초` : `${m}분`) : `${r}초`;
+}
+
+const score = (v) => (v === null || v === undefined ? EMPTY : `${v}/10`);
+
+export function formatBody(state) {
+  const spots = state.spots.length
+    ? state.spots.map((p) => `- ${p.place || EMPTY} | ${p.feel || EMPTY} | ${p.intensity}`).join('\n')
+    : EMPTY;
+  return [
+    `[신체 훈련] ${state.date} (${weekday(state.date)})`,
+    '',
+    '■ 시작 점수',
+    `불안: ${score(state.scores.anxiety)}`,
+    `나를 향한 비난: ${score(state.scores.blame)}`,
+    '',
+    '■ 공명 호흡',
+    formatDuration(state.breath.seconds),
+    '',
+    '■ 감정 위치 찾기',
+    `떠올린 순간: ${orEmpty(state.moment)}`,
+    spots,
+    '',
+    '■ 그냥 같이 있기',
+    formatDuration(state.stay.seconds),
+    '',
+  ].join('\n');
+}
+
+export function bodyFileName(state) {
+  return `body-${state.date}.txt`;
+}

@@ -4,6 +4,7 @@ import { SLOTS, KINDS, RESPONSES, todayString, weekday, objectParticle, formatUn
 import { load, save, remove } from '../lib/storage.js';
 import { startTimer, formatRemaining } from '../lib/timer.js';
 import { downloadText, copyText } from '../lib/download.js';
+import { esc, labelOf, flowHeader } from '../lib/ui.js';
 
 const KEY = 'uncertainty-draft-v1';
 const DURATIONS = { find: 5 * 60 * 1000, record: 10 * 60 * 1000 };
@@ -44,11 +45,6 @@ export function clearDraft() {
   remove(KEY);
 }
 
-const esc = (s) =>
-  String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-
-const labelOf = (list, id) => list.find((x) => x.id === id)?.label ?? '';
-
 export function mount(root, { exit }) {
   let state = load(KEY) || newState();
   let activeSlot = 'morning';
@@ -73,17 +69,10 @@ export function mount(root, { exit }) {
   }
 
   function header() {
-    const steps = visibleSteps();
-    const idx = steps.indexOf(state.step);
-    return `
-      <header class="flow-head">
-        <button class="link" data-act="back">← ${idx === 0 ? '홈' : '이전'}</button>
-        <h1>불확실성 돌아보기</h1>
-        <p class="date">${esc(state.date)} (${weekday(state.date)})</p>
-        <ol class="stepper">
-          ${steps.map((s, i) => `<li class="${i < idx ? 'done' : i === idx ? 'now' : ''}">${stepLabel(s)}</li>`).join('')}
-        </ol>
-      </header>`;
+    return flowHeader({
+      title: '불확실성 돌아보기', date: state.date, day: weekday(state.date),
+      steps: visibleSteps(), current: state.step, labels: stepLabel,
+    });
   }
 
   function timerBlock(step) {

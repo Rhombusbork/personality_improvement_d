@@ -1,9 +1,10 @@
 // 라우팅 (홈 ↔ 흐름)과 훈련 목록. 새 훈련은 js/flows/에 모듈을 만들고 FLOWS에 등록한다.
 
+import * as body from './flows/body.js';
 import * as uncertainty from './flows/uncertainty.js';
 
 const FLOWS = [
-  { order: 1, label: '신체 훈련', available: false },
+  { ...body.meta, module: body },
   { ...uncertainty.meta, module: uncertainty },
   { order: 3, label: '조급함 훈련', available: false },
   { order: 4, label: '자기자비', available: false },
