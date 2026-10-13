@@ -134,3 +134,56 @@ export function formatBody(state) {
 export function bodyFileName(state) {
   return `body-${state.date}.txt`;
 }
+
+// ---------- 자기자비 ----------
+
+export const SELF_FIELDS = [
+  { id: 'wisdom', label: '지혜로움', hint: '그 사람은 무엇을 알고 있나?' },
+  { id: 'strength', label: '강함', hint: '흔들려도 무너지지 않는 힘은 어떤 모습인가?' },
+  { id: 'warmth', label: '따뜻함', hint: '나를 어떤 마음으로 바라보나?' },
+  { id: 'face', label: '표정', hint: '' },
+  { id: 'voice', label: '목소리 톤', hint: '' },
+  { id: 'posture', label: '자세', hint: '' },
+];
+
+export const LETTER_PARTS = [
+  { id: 'ack', label: '알아주기', starter: '그때 너는 ___ 때문에 힘들었구나.' },
+  { id: 'common', label: '누구나', starter: '그런 상황에서 그렇게 느끼는 건 ___' },
+  { id: 'toYou', label: '너에게', starter: '너에게 하고 싶은 말은 ___' },
+];
+
+export const RESONANCE = [
+  { id: 'yes', label: '와닿음' },
+  { id: 'some', label: '조금' },
+  { id: 'empty', label: '공허함' },
+];
+
+export const CLOSING = '지금 이런 마음이 있구나. 누구나 그럴 때가 있다. 이대로도 괜찮다.';
+
+export function formatSelf(profile) {
+  return ['[나의 자비로운 나]', '', ...SELF_FIELDS.map((f) => `${f.label}: ${orEmpty(profile?.[f.id])}`), ''].join('\n');
+}
+
+export function formatCompassion(state) {
+  const source = { uncertainty: '불확실성 기록에서', new: '새로 씀' }[state.scene.source] ?? '';
+  const lines = [
+    `[자기자비] ${state.date} (${weekday(state.date)})`,
+    '',
+    `■ 장면${source ? ` (${source})` : ''}`,
+    orEmpty(state.scene.text),
+    '',
+    '■ 자비의 편지',
+    ...LETTER_PARTS.map((p, i) => `${i + 1}. ${p.label}: ${orEmpty(state.letter[p.id])}`),
+    '',
+    '■ 와닿은 정도',
+    RESONANCE.find((r) => r.id === state.resonance)?.label ?? EMPTY,
+  ];
+  if (state.handBreath) lines.push('대신 손을 가슴에 얹고 1분 호흡');
+  if (state.switched) lines.push('', '■ 메모', '중간에 호흡으로 전환');
+  lines.push('');
+  return lines.join('\n');
+}
+
+export function compassionFileName(state) {
+  return `compassion-${state.date}.txt`;
+}

@@ -122,3 +122,38 @@ test('시간 표기', () => {
   assert.equal(formatDuration(45), '45초');
   assert.equal(formatDuration(150), '2분 30초');
 });
+
+import { formatCompassion, compassionFileName, formatSelf } from '../js/lib/format.js';
+
+test('자기자비 형식', () => {
+  const state = {
+    date: '2026-10-13',
+    scene: { source: 'uncertainty', text: '메시지를 몇 번 열어 봄' },
+    letter: { ack: '그때 너는 답을 몰라서 힘들었구나.', common: '', toYou: '괜찮아.' },
+    resonance: 'empty',
+    handBreath: true,
+    switched: true,
+  };
+  assert.equal(formatCompassion(state), `[자기자비] 2026-10-13 (화)
+
+■ 장면 (불확실성 기록에서)
+메시지를 몇 번 열어 봄
+
+■ 자비의 편지
+1. 알아주기: 그때 너는 답을 몰라서 힘들었구나.
+2. 누구나: (비어 있음)
+3. 너에게: 괜찮아.
+
+■ 와닿은 정도
+공허함
+대신 손을 가슴에 얹고 1분 호흡
+
+■ 메모
+중간에 호흡으로 전환
+`);
+  assert.equal(compassionFileName(state), 'compassion-2026-10-13.txt');
+});
+
+test('자비로운 나 형식', () => {
+  assert.match(formatSelf({ wisdom: '조급해도 된다는 걸 안다' }), /지혜로움: 조급해도 된다는 걸 안다\n강함: \(비어 있음\)/);
+});

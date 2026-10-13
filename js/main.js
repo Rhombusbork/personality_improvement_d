@@ -2,12 +2,13 @@
 
 import * as body from './flows/body.js';
 import * as uncertainty from './flows/uncertainty.js';
+import * as compassion from './flows/compassion.js';
 
 const FLOWS = [
   { ...body.meta, module: body },
   { ...uncertainty.meta, module: uncertainty },
   { order: 3, label: '조급함 훈련', available: false },
-  { order: 4, label: '자기자비', available: false },
+  { ...compassion.meta, module: compassion },
 ].sort((a, b) => a.order - b.order);
 
 const app = document.getElementById('app');

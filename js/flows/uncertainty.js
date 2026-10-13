@@ -41,6 +41,15 @@ export function draftInfo() {
   return s ? { date: s.date } : null;
 }
 
+// 자기자비에서 쓴다. 오늘 기록에서 고른 장면이 있으면 그 문장을 돌려준다.
+export function todayScene() {
+  const s = load(KEY);
+  if (!s || s.date !== todayString() || s.noneFound) return null;
+  const t = s.traces.find((x) => x.id === s.pickedId);
+  if (!t) return null;
+  return t.unknown ? `${t.text} (${t.unknown}${objectParticle(t.unknown)} 몰랐던 것)` : t.text;
+}
+
 export function clearDraft() {
   remove(KEY);
 }

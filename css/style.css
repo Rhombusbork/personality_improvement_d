@@ -210,3 +210,14 @@ textarea { resize: vertical; }
 @media (prefers-reduced-motion: reduce) {
   .pacer { animation: none; transform: scale(0.8); }
 }
+
+/* 자기자비 */
+.row.start { justify-content: flex-start; flex-wrap: wrap; margin-top: 0; }
+.guide { padding-left: 1.2em; display: grid; gap: 10px; margin: 16px 0; }
+.self-dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 8px 0 0; }
+.self-dl dt { font-weight: 600; }
+.self-dl dd { margin: 0; }
+.closing {
+  margin: 24px 0 0; padding: 14px 16px; border-left: 3px solid var(--accent);
+  background: var(--surface); border-radius: 0 10px 10px 0;
+}
