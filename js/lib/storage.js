@@ -24,3 +24,11 @@ export function remove(key) {
     // 무시
   }
 }
+
+export function keys(prefix) {
+  try {
+    return Object.keys(localStorage).filter((k) => k.startsWith(prefix));
+  } catch {
+    return [];
+  }
+}

@@ -221,3 +221,19 @@ textarea { resize: vertical; }
   margin: 24px 0 0; padding: 14px 16px; border-left: 3px solid var(--accent);
   background: var(--surface); border-radius: 0 10px 10px 0;
 }
+
+/* 대협 훈련 */
+.field-label { font-weight: 600; }
+.week-card { margin-top: 16px; }
+.week-card h2 { font-size: 1.15rem; margin: 2px 0 6px; }
+.week-card p { margin: 4px 0; }
+.flow-list.plain { margin-top: 16px; }
+button.flow-btn { width: 100%; text-align: left; font: inherit; cursor: pointer; }
+button.flow-btn:hover { border-color: var(--accent); }
+.flow-btn.hl { border-color: var(--accent); background: var(--accent-soft); }
+.principle { display: grid; gap: 8px; margin-bottom: 10px; }
+.principle input { font-weight: 600; }
+.card + .card { margin-top: 12px; }
+input[type="date"] {
+  padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+}

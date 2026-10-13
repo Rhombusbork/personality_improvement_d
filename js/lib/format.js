@@ -45,6 +45,19 @@ export function objectParticle(word) {
   return code % 28 === 0 ? '를' : '을';
 }
 
+// 받침 유무에 따라 '이라는'/'라는'. 한글로 끝나지 않으면 '(이)라는'.
+export function quoteParticle(word) {
+  const last = word.trim().slice(-1);
+  const code = last.charCodeAt(0) - 0xac00;
+  if (!last || code < 0 || code > 11171) return '(이)라는';
+  return code % 28 === 0 ? '라는' : '이라는';
+}
+
+const verdictSentence = (v) => {
+  const t = (v ?? '').trim();
+  return t ? `이건 내가 ${t}${quoteParticle(t)} 뜻이다` : EMPTY;
+};
+
 export function unknownSentence(unknown) {
   const u = (unknown ?? '').trim();
   if (!u) return EMPTY;
@@ -186,4 +199,123 @@ export function formatCompassion(state) {
 
 export function compassionFileName(state) {
   return `compassion-${state.date}.txt`;
+}
+
+// ---------- 대협 훈련 ----------
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const dayNumber = (dateString) => {
+  const [y, m, d] = dateString.split('-').map(Number);
+  return Math.round(Date.UTC(y, m - 1, d) / DAY_MS);
+};
+
+export function dayOfWeek(dateString) {
+  const [y, m, d] = dateString.split('-').map(Number);
+  return new Date(y, m - 1, d).getDay();
+}
+
+// 시작일 기준 주차 (1부터). 원칙은 목록을 순환한다.
+export function weekInfo(startDate, today, principles) {
+  const index = Math.floor((dayNumber(today) - dayNumber(startDate)) / 7);
+  const n = principles.length;
+  return { week: index + 1, principle: principles[((index % n) + n) % n], next: principles[(((index + 1) % n) + n) % n] };
+}
+
+// 날짜마다 정해진 두 문제. 같은 날에는 항상 같은 문제가 나온다.
+export function problemsFor(dateString, bank) {
+  const i = ((dayNumber(dateString) * 2) % bank.length + bank.length) % bank.length;
+  return [bank[i], bank[(i + 1) % bank.length]];
+}
+
+const opt = (list, id) => list.find((x) => x.id === id)?.label ?? EMPTY;
+
+export function formatDaehyupDay(day, ctx) {
+  const { week, principle, isMeeting, isVerdictWeek, problems, shadowOptions, actionOptions, checkOptions } = ctx;
+  const e = day.evening;
+  const lines = [
+    `[대협 훈련] ${day.date} (${weekday(day.date)})`,
+    `이번 주: ${week}주차 · ${principle.title}`,
+    `행동: ${principle.action}`,
+    '',
+    '■ 아침 출진',
+    day.morning ? '했음' : '안 함',
+  ];
+  if (isMeeting) {
+    lines.push('', '■ 모임 전 예측', `예측: ${orEmpty(day.predict.text)} (확신도 ${day.predict.confidence}%)`);
+  }
+  lines.push(
+    '',
+    '■ 저녁 회고',
+    `1. 이번 주 행동: ${opt(actionOptions, e.action)}`,
+    `2. 대협이었던 순간: ${orEmpty(e.hero)}`,
+    `3. 떠밀린 순간: ${orEmpty(e.pushed)}`,
+    `4. 그때 대협이라면: ${orEmpty(e.ifHero)}`,
+    `5. 그림자: ${opt(shadowOptions, e.shadow)}`,
+    `6. 오늘 높이 본 사람: ${orEmpty(e.admired)} / 이유: ${orEmpty(e.admiredWhy)}`,
+  );
+  if (isMeeting) {
+    lines.push('', '■ 관계 실험 결과', `실제 반응: ${orEmpty(e.expActual)}`, `예측과의 차이: ${orEmpty(e.expDiff)}`);
+  }
+  if (isVerdictWeek) {
+    lines.push('', '■ 판결 연습');
+    problems.forEach((p, i) => {
+      const a = day.problems[i] ?? {};
+      lines.push(
+        `[문제 ${i + 1}] ${p}`,
+        `- 판결: ${verdictSentence(a.verdict)}`,
+        `- 상황: ${orEmpty(a.situ)}`,
+        `- 상대의 상태: ${orEmpty(a.state)}`,
+        `- 상대의 성향: ${orEmpty(a.trait)}`,
+        `- 대협이라면: ${orEmpty(a.hero)}`,
+      );
+    });
+    const r = day.real;
+    lines.push(
+      '[오늘의 판결]',
+      `1. 남의 행동: ${orEmpty(r.behavior)}`,
+      `2. 내가 읽은 판결: ${verdictSentence(r.verdict)}`,
+      `3. 다른 가설: 상황 - ${orEmpty(r.situ)} / 상대의 상태 - ${orEmpty(r.state)} / 상대의 성향 - ${orEmpty(r.trait)}`,
+      `4. 판결이 맞다고 해도: ${orEmpty(r.worth)}`,
+      `5. 확인 행동: ${opt(checkOptions, r.checked)}`,
+    );
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
+export function formatDaehyupWeek(w, { week, principle, next }) {
+  return [
+    `[대협 주간 점검] ${w.date} (${weekday(w.date)})`,
+    `이번 주: ${week}주차 · ${principle.title}`,
+    `실행 일수: ${w.days === null ? EMPTY : `${w.days}/7`}`,
+    `반복된 떠밀린 순간: ${orEmpty(w.pattern)}`,
+    `메모: ${orEmpty(w.note)}`,
+    `다음 주: ${week + 1}주차 · ${next.title}`,
+    '',
+  ].join('\n');
+}
+
+export function formatDaehyupProfile(p) {
+  return [
+    '[나의 대협]',
+    '',
+    '■ 원칙',
+    ...p.principles.map((x, i) => `${i + 1}. ${x.title}\n   ${x.desc}\n   행동: ${x.action}`),
+    '',
+    '■ 그림자',
+    orEmpty(p.shadows),
+    '',
+    '■ 모습',
+    `자세: ${orEmpty(p.look.posture)}`,
+    `목소리: ${orEmpty(p.look.voice)}`,
+    `웃음: ${orEmpty(p.look.laugh)}`,
+    `말투: ${orEmpty(p.look.speech)}`,
+    '',
+    `■ 큰 뜻\n${orEmpty(p.aim)}`,
+    '',
+    `■ 고정 상황\n${orEmpty(p.situation)}`,
+    '',
+    `시작일: ${p.startDate}`,
+    '',
+  ].join('\n');
 }
