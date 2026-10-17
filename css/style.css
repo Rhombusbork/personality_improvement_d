@@ -237,3 +237,10 @@ button.flow-btn:hover { border-color: var(--accent); }
 input[type="date"] {
   padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
 }
+
+/* Google Docs 저장 */
+.sync-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.sync-msg a, .note a { color: var(--accent); }
+input[type="url"], input[type="password"] {
+  width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+}

@@ -12,6 +12,7 @@ import { load, save, remove, keys } from '../lib/storage.js';
 import { startTimer, formatRemaining } from '../lib/timer.js';
 import { downloadText } from '../lib/download.js';
 import { esc } from '../lib/ui.js';
+import { syncBlock, attachSync } from '../lib/sync.js';
 
 const PROFILE_KEY = 'daehyup-profile-v1';
 const DAY_PREFIX = 'daehyup-day-';
@@ -318,6 +319,7 @@ export function mount(root, { exit }) {
           <button class="ghost" data-act="to" data-to="hub">대협 훈련으로</button>
         </div>
         <p class="muted" aria-live="polite">${esc(message)}</p>
+        ${syncBlock()}
       </main>`;
   }
 
@@ -339,6 +341,7 @@ export function mount(root, { exit }) {
           <button class="primary" data-act="week-download">텍스트 파일 다운로드</button>
         </div>
         <p class="muted" aria-live="polite">${esc(message)}</p>
+        ${syncBlock()}
       </main>`;
   }
 
@@ -361,6 +364,13 @@ export function mount(root, { exit }) {
       predict: predictView, evening: eveningView, 'day-save': daySaveView, weekly: weeklyView,
     };
     root.innerHTML = views[view]();
+    if (view === 'day-save') {
+      attachSync(root, () => ({ date: day.date, title: '대협 훈련', text: formatDaehyupDay(day, ctxFor(today)) }));
+    }
+    if (view === 'weekly') {
+      // 주간 점검은 작성 중에도 이 화면이라, 버튼을 눌렀을 때만 보낸다.
+      attachSync(root, () => ({ date: today, title: '대협 주간 점검', text: formatDaehyupWeek(week, ctxFor(today)) }), { auto: false });
+    }
     if (view === 'morning') runTimer('morning');
     if (view === 'evening') runTimer('evening');
   }

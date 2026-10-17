@@ -8,6 +8,7 @@ import { load, save, remove } from '../lib/storage.js';
 import { startTimer, formatRemaining } from '../lib/timer.js';
 import { downloadText, copyText } from '../lib/download.js';
 import { esc, flowHeader } from '../lib/ui.js';
+import { syncBlock, attachSync } from '../lib/sync.js';
 import { todayScene } from './uncertainty.js';
 
 const KEY = 'compassion-draft-v1';
@@ -172,7 +173,8 @@ export function mount(root, { exit }) {
         <button class="ghost" data-act="copy">복사</button>
         <button class="ghost" data-act="home">홈으로</button>
       </div>
-      <p class="muted" id="save-msg" aria-live="polite"></p>`;
+      <p class="muted" id="save-msg" aria-live="polite"></p>
+      ${syncBlock()}`;
   }
 
   function runTimer(key, { breathing = false } = {}) {
@@ -205,6 +207,9 @@ export function mount(root, { exit }) {
       title: '자기자비', date: state.date, day: weekday(state.date),
       steps: visibleSteps(), current: state.step, labels: (s) => LABELS[s],
     })}<main class="flow">${views[state.step]()}</main>`;
+    if (state.step === 'save') {
+      attachSync(root, () => ({ date: state.date, title: '자기자비', text: formatCompassion(state) }));
+    }
 
     if (state.step === 'imagine') runTimer('imagine');
     if (state.step === 'letter') runTimer('letter');

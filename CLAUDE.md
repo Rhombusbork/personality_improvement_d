@@ -8,9 +8,10 @@
 - 로컬 실행: `python3 -m http.server 8000` 후 http://localhost:8000 (ES 모듈이라 file:// 로는 안 열린다)
 - 테스트: `node --test` (tests/*.test.js 자동 탐색)
 - 배포: GitHub Pages, main 브랜치 루트
+- Google Docs 저장: `gas/Code.gs`를 사용자가 Apps Script로 배포 ([docs/google-docs-setup.md](docs/google-docs-setup.md)). Code.gs를 바꾸면 사용자가 새 버전으로 재배포해야 한다.
 
 ## 규칙
-- **개인정보:** 사용자의 입력은 브라우저 밖으로 보내지 않는다. 서버 요청, 분석 도구, 외부 폰트·CDN을 넣지 않는다.
+- **개인정보:** 사용자의 입력은 사용자가 설정에 넣은 자신의 Apps Script 주소(`js/lib/sync.js` → `gas/Code.gs`, 월별 Google Docs)로만 보낸다. 그 외 서버 요청, 분석 도구, 외부 폰트·CDN을 넣지 않는다. 주소와 비밀 키는 localStorage에만 두고 저장소에 넣지 않는다.
 - **localStorage:** 모든 접근은 `js/lib/storage.js`를 거치고 try/catch로 감싼다. 저장이 실패해도 앱은 동작해야 한다.
 - **출력 형식:** `js/lib/format.js`는 순수 함수로 유지한다. 형식을 바꾸면 design.md 5절과 `tests/format.test.js`를 같이 고친다.
 - **문구:** UI는 한국어. 평가하거나 판단하는 표현("실패", "잘했어요")을 쓰지 않는다. "못 찾음", "아직 모름"은 정상 경로다.

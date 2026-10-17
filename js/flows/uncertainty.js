@@ -5,6 +5,7 @@ import { load, save, remove } from '../lib/storage.js';
 import { startTimer, formatRemaining } from '../lib/timer.js';
 import { downloadText, copyText } from '../lib/download.js';
 import { esc, labelOf, flowHeader } from '../lib/ui.js';
+import { syncBlock, attachSync } from '../lib/sync.js';
 
 const KEY = 'uncertainty-draft-v1';
 const DURATIONS = { find: 5 * 60 * 1000, record: 10 * 60 * 1000 };
@@ -245,13 +246,17 @@ export function mount(root, { exit }) {
         <button class="ghost" data-act="copy">복사</button>
         <button class="ghost" data-act="home">홈으로</button>
       </div>
-      <p class="muted" id="save-msg" aria-live="polite"></p>`;
+      <p class="muted" id="save-msg" aria-live="polite"></p>
+      ${syncBlock()}`;
   }
 
   function render() {
     if (stopTimer) { stopTimer(); stopTimer = null; }
     const body = { find: findView, pick: pickView, record: recordView, save: saveView }[state.step]();
     root.innerHTML = `${header()}<main class="flow">${body}</main>`;
+    if (state.step === 'save') {
+      attachSync(root, () => ({ date: state.date, title: '불확실성 훈련', text: formatUncertainty(state) }));
+    }
 
     if (DURATIONS[state.step]) {
       const step = state.step;
