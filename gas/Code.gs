@@ -46,11 +46,12 @@ function monthDoc(month, props) {
     try { return DocumentApp.openById(id); } catch (err) { /* 지워졌으면 새로 만든다 */ }
   }
   const doc = DocumentApp.create(`${FOLDER_NAME} ${month}`);
-  const file = DriveApp.getFileById(doc.getId());
-  folder().addFile(file);
-  DriveApp.getRootFolder().removeFile(file);
-  doc.getBody().getParagraphs()[0].setText(`${FOLDER_NAME} ${month}`).setHeading(DocumentApp.ParagraphHeading.TITLE);
   props.setProperty(key, doc.getId());
+  DriveApp.getFileById(doc.getId()).moveTo(folder());
+  // Paragraph.setText()는 아무것도 돌려주지 않으므로 이어 붙이지 않는다.
+  const first = doc.getBody().getParagraphs()[0];
+  first.setText(`${FOLDER_NAME} ${month}`);
+  first.setHeading(DocumentApp.ParagraphHeading.TITLE);
   return doc;
 }
 
@@ -81,8 +82,12 @@ function writeSection(doc, heading, text) {
       if (isNextSection) break;
       if (index === body.getNumChildren() - 1) {
         // 문서의 마지막 문단은 지울 수 없으므로 비운다.
-        if (el.getType() === DocumentApp.ElementType.PARAGRAPH) el.asParagraph().setText('').setHeading(H.NORMAL);
-        else el.removeFromParent();
+        if (el.getType() === DocumentApp.ElementType.PARAGRAPH) {
+          el.asParagraph().setText('');
+          el.asParagraph().setHeading(H.NORMAL);
+        } else {
+          el.removeFromParent();
+        }
         break;
       }
       el.removeFromParent();
